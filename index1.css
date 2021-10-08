@@ -1,0 +1,144 @@
+@charset "utf-8";
+
+html {
+  font-size: 62.5%;
+}
+div,body,h2,a,section,ul,li{
+  margin: 0 ;
+  padding: 0;
+}
+#wrapper{
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+}
+#onept{
+ color: brown;
+ margin-left: 7%;
+ margin-top: 5%;
+ font-size: 7.5rem;
+ margin-right: 10%;
+ font-family: Arial, Helvetica, sans-serif;
+ 
+}
+body{
+    
+    background-image:url("./images/sakura430-31_TP_V.jpg");
+    background-color:rgba(67, 124, 56, 0.4);
+    background-blend-mode:hue;
+    /*background-color:rgba(255,255,255,0.8);
+    background-blend-mode:lighten;*/
+    background-size:cover;
+   
+    
+  
+}
+ 
+  h2{
+    color: wheat;
+    font-size: 5em;
+    cursor: pointer;
+  }
+  #btn{
+    margin-right: 18%;
+    margin-top: 18%;
+    transition:backgrand,4s;
+    margin-top: 200px;
+    margin-right: 5%; 
+    margin-left:5%;
+ }
+  #btn:hover{
+    background-color: aqua;
+    
+  }
+  section{
+    margin-top:100px;
+  }
+  #sablist{
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .sablist:before{
+    margin-top:12px;
+    margin-right: 0.4em;
+    content: "";
+    display: inline-block;
+    border-top: solid 1px rgb(241, 240, 240);
+    border-right: solid 1px rgb(241, 240, 240);
+    width: 0.6em;
+    height: 0.6em;
+    transform: rotate(135deg);
+    
+}
+
+.sablist_a:before {
+  margin-top:20px;
+  margin-right: 0.4em;
+  content: "";
+  display: inline-block;
+  border-top: solid 1px rgb(241, 240, 240);
+  border-right: solid 1px rgb(241, 240, 240);
+  width: 0.6em;
+  height: 0.6em;
+  transform: rotate(-45deg);
+}
+section>ul>li{
+  font-size: 2rem;
+  margin-top: 10px;
+  font-weight: 15px;
+  color: rgb(231, 202, 220);
+}
+section>ul>li a:visited{
+  color: rgb(231, 202, 220);
+
+}
+section>ul>li a:link{
+  color: rgb(231, 202, 220);
+
+}
+#newsmenu{
+  display: none;
+}
+  
+  #main-manu{
+    color: wheat;
+    display: none;
+   font-size: 3em;
+   border: 0.5em solid blue ;
+   width:40%;
+   height: 420px;
+   background-color: rgb(172, 181, 199);
+   margin: 0 auto;
+   margin-top: 100px;
+   text-align: center;
+  }
+  
+  #main-manu>nav:nth-child(2)>a{
+    margin-left:4.5%;
+  }
+
+ 
+  #close-btn{
+  font-size: 3en;
+  cursor: pointer;
+  float:right;
+  margin-right: 1%;
+  }
+  #close-btn:hover{
+    color: rgb(151, 143, 132);
+  }
+  nav{
+    margin-bottom: 5%;
+    margin-top: 5%;
+  }
+  
+  
+ nav>a{
+  line-height: 1em;
+  font-size: 1em;
+  text-decoration: none;
+  cursor: pointer;
+   
+ }
+ 
