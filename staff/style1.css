@@ -1,0 +1,53 @@
+@charset "utf-8";
+body{
+    text-align: center;
+    background-color: rgb(119, 134, 96);
+}
+#menu{
+    text-align: center;
+}
+a{
+    margin-right: 3%;
+}
+#wrapper{
+    width: 80%;
+    background-color: azure;
+    margin: 100px auto;
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+#wrapper>header>ul{
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-evenly;
+    list-style: none;
+
+}
+nav{
+    margin-top: 20px;
+    margin: 20px auto;
+    width: 50%;
+}
+nav>input{
+    margin-right: 5px;
+    margin-left: 5px;
+}
+#wrapper>header>ul>li{
+    width: 30%;
+}
+.warning{
+    color: red;
+}
+#smele{
+    font-size:smaller;
+}
+#big{
+    font-size:1.5em;
+}
+
+#table{
+    margin: 20px auto;
+}
+td{
+    text-align: center;
+}
