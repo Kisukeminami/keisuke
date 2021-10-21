@@ -1,15 +1,17 @@
 <?php 
 require_once('../dbc/sraff_dbc.php');
+//ログインしているか確認
 session();
 
 $staff_code = $_POST['staff_code'];
 
-try {
+try 
+{
             
         $dbh= new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
             ]);
-    
+    //DBから削除
     $sql='DELETE FROM shop_staff WHERE staff_code=? ';
     $stmt=$dbh->prepare($sql);
     $date[]=$staff_code;
@@ -18,7 +20,8 @@ try {
     $dbh=null;
     
     
-    } catch (PDOException $e) {
+    } catch (PDOException $e) 
+    {
         echo "接続失敗".$e->getMessage();
         exit();
     }
