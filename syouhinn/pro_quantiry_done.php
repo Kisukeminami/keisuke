@@ -1,7 +1,10 @@
 <?php
  require_once('../dbc/sraff_dbc.php');
+ //ログインしているか確認
     severrq();
+    //POST送信以外のアクセスを防ぐ
     session();
+    //引数の値をエスケープする
     $post=sanitize($_POST);
     $pro_name=$post['name'];
     $pro_id=$post['id'];
@@ -16,7 +19,7 @@
     }catch (PDOException $e) {
 		exit('データベース接続失敗。'.$e->getMessage());
 	}
-    
+    //shop_listのquantiryの上書き処理
     $stmt = $dbh -> prepare('UPDATE `shop_list` SET `quantiry` = :quantiry WHERE `id`=:id');
     $stmt -> bindParam(':quantiry',$post['quantiry']);
     $stmt -> bindParam(':id',$post['id']);
