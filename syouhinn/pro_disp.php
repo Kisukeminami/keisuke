@@ -1,10 +1,12 @@
 <?php
 require_once('../dbc/sraff_dbc.php');
-
+//ログインしているか確認
 session();
+//スタッフの権限確認、3番強い権限、以下なら別ページに飛ばす
 anthority_sarede();
 $pro_code=$_GET['pro_code'];
-try {
+try 
+{
   
 
 
@@ -12,6 +14,7 @@ try {
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
 
+    //同じidで紐づけて全件取得
     $sql ='SELECT * FROM shop_list JOIN list_detail ON shop_list.cood = list_detail.cood JOIN sach ON shop_list.cood = sach.cood WHERE id=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$pro_code;
