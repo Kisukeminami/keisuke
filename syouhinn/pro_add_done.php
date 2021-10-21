@@ -1,14 +1,13 @@
-
 <?php
 require_once('../dbc/sraff_dbc.php');
+//POST送信以外のアクセスを防ぐ
 severrq();
+//ログインしているか確認
 session();
 
-	if(!isset($_SESSION['id'])):
-		exit("直接アクセス禁止");
-	endif;
-	session_regenerate_id(true);
+	
 try {
+//引数の値をエスケープする
     $post=sanitize($_POST);
     $pro_name=$post['name'];
     $pro_cood=$post['cood'];
@@ -31,7 +30,7 @@ try {
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
         ]);
-
+//shop_listのテーブルに保存
 $sql_list='INSERT INTO shop_list(cood,name,file_path,text,quantiry) VaLUES (?,?,?,?,?)';
 $stmt_list=$dbh->prepare($sql_list);
 $date1[]=$pro_cood;
@@ -43,7 +42,7 @@ $stmt_list->execute($date1);
 
 
 
-
+//list_detailのテーブルに保存
 $sql_detail='INSERT INTO list_detail(cood,size,file_path_right,file_path_left,file_path_back) VaLUES (?,?,?,?,?)';
 $stmt_detail=$dbh->prepare($sql_detail);
 $date2[]=$pro_cood;
@@ -54,7 +53,7 @@ $date2[]=$pro_file_path_back;
 $stmt_detail->execute($date2);
 
 
-
+//sachのテーブルに保存
 $sql_sach='INSERT INTO sach(cood,maker,genre,category,price,tax) VaLUES (?,?,?,?,?,?)';
 $stmt_sach=$dbh->prepare($sql_sach);
 $date3[]=$pro_cood;
@@ -88,6 +87,7 @@ $dbh=null;
 <p><?php echo $_SESSION["staff_name"]."さんログイン中です"?></p>
     <h2>追加しました</h2>
 <a href="pro_list.php">戻る</a>
+<!--　各$_SESSIONの中身を消す -->
 <?php unset($_SESSION['imgname']) ?>
 <?php unset($_SESSION['imgname_right']) ?>
 <?php unset($_SESSION['imgname_left']) ?>
