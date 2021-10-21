@@ -2,26 +2,31 @@
     <?php
     
     require_once('../dbc/sraff_dbc.php');
+    //POST送信以外のアクセスを防ぐ
     severrq();
-
+//ログインしているか確認
     session();
     if(!isset($_SESSION['id'])):
 		exit("直接アクセス禁止");
 	endif;
-    try {
+    try 
+    {
         $pdo = new PDO($dsn,$user,$pass,
         array(PDO::ATTR_EMULATE_PREPARES => false));
     }
-    catch (PDOException $e) {
+    catch (PDOException $e) 
+    {
         exit('データベース接続失敗。'.$e->getMessage());
     }
     
     $flag=true;
+    //引数の値をエスケープする
     $post=sanitize($_POST);
     $pro_name=$post['name'];
     $pro_cood=$post['cood'];
     $pro_cood_old=$post['cood_old'];
     $pro_price=$post['price'];
+    //説明文なのでnl2brで改行
     $pro_text=nl2br($post['text']);
     $pro_file_path_old=$post['file_path_old'];
     $pro_size=$post['size'];
@@ -32,12 +37,14 @@
     $pro_file_path_back_old=$post['file_path_back_old'];
     $pro_maker=$post['maker'];
     $pro_genle=$post['genle'];
+    //値がはいっていなければカテゴリーが選択されていませんを代入
     $pro_category=$post['category'] ?? "カテゴリーが選択されていません<br>";
+    //空のエラー配列
     $errors=array();
-    $coodcount=0;
 
 
 
+//pro_nameの有無
     if((isset($pro_name) && strlen($pro_name))==false){
         $errors['name']="商品名が入力されていません <br>";
     }elseif(mb_strlen($pro_name)>30){
@@ -45,12 +52,15 @@
         }
 
     
-
+    //まずpro_file_pathがあるかを確認あれば保存処理
     var_dump(isset($_FILES['pro_file_path']) && $_FILES['pro_file_path']["name"]!=="");
-    if (isset($_FILES['pro_file_path'])&& $_FILES['pro_file_path']["name"]!=="") {
+    if (isset($_FILES['pro_file_path'])&& $_FILES['pro_file_path']["name"]!=="") 
+    {
         $pro_file_path=$_FILES['pro_file_path'];
-        if ($pro_file_path['error']!==0) {
-            switch ($pro_file_path['error']) {
+        if ($pro_file_path['error']!==0) 
+        {
+            switch ($pro_file_path['error']) 
+            {
                 
                 case 3:
                     $errors['file_path']="メイン画像ファイルにエラーが発生しました一度戻ってやり直してください" ;
@@ -67,13 +77,19 @@
                     default:
                     $errors['file_path']="メイン画像ファイルにエラーが発生しました担当者に連絡ください" ;
             }
-        }elseif(strtolower($pro_file_path["name"])){
+        }elseif(strtolower($pro_file_path["name"]))
+        {
             $path_info =pathinfo($pro_file_path['name'],PATHINFO_EXTENSION);
-                if (!($path_info=="jpg" || $path_info=="jpeg" || $path_info=="png")) {
+                if (!($path_info=="jpg" || $path_info=="jpeg" || $path_info=="png"))
+                 {
                     $errors['file_path']="画像の拡張子が違います";
-                }elseif($pro_file_path['size']>1000000) {
+                }elseif($pro_file_path['size']>1000000) 
+                {
                 $errors['pro_file_path']="メイン商品画像が大きすぎます";
-                }else{
+                }
+                else
+                {
+                    //すべてが大丈夫なら保存処理
                     $save_file_name=date('YmdHis').$pro_file_path["name"];
                     move_uploaded_file($pro_file_path['tmp_name'], 'image/'.$save_file_name);
                     $new_pro_file_path= '<img src="image/'.$save_file_name.'">';
@@ -82,33 +98,48 @@
             
             }
         
-    }elseif($_FILES['pro_file_path']["name"]=="") {
+    }
+    //もしなければ、$new_pro_file_pathに古いパスを入れる
+    elseif($_FILES['pro_file_path']["name"]=="") 
+    {
    
         $new_pro_file_path= '<img src="image/'.$pro_file_path_old.'">';
         
     }
 
 
+     //$pro_textの有無
+    if((isset($pro_text) && strlen($pro_text))==false)
+    {
     
-    if((isset($pro_text) && strlen($pro_text))==false){
         $errors['text']="説明が入力されていません <br>";
         
-    }elseif(strlen($pro_text)>254){
+    }
+    elseif(strlen($pro_text)>254)
+    {
         $errors['text']="２５４文字以内にいてください <br>";
     }
 
 
-    if((isset($pro_cood) && strlen($pro_cood))==false){
+  //pro_coodがDBに存在しているか確認
+    if((isset($pro_cood) && strlen($pro_cood))==false)
+    {
         $errors['cood']="商品コードが入力されていません <br>";
         
-    }elseif(strlen($pro_cood)>10){
+    }
+    elseif(strlen($pro_cood)>10)
+    {
         $errors['cood']="10文字以内にいてください <br>";
-    }else{
+    }
+    else
+    {
         $stmt=$pdo->prepare("SELECT `cood` FROM `shop_list`");
         $stmt->execute();
 
-        while ($result=$stmt->fetch(PDO::FETCH_ASSOC)) {
-            if ($result['cood']===$pro_cood && $pro_cood_old!==$pro_cood){
+        while ($result=$stmt->fetch(PDO::FETCH_ASSOC)) 
+        {
+            if ($result['cood']===$pro_cood && $pro_cood_old!==$pro_cood)
+            {
                 $errors["cood"]="この商品コードは既に登録されています";
                 break;
                 
@@ -118,47 +149,67 @@
     }
 
 $pdo=null;
-
-    if ((isset($pro_size) && strlen($pro_size))==false) {
+     //pro_sizeの有無
+    if ((isset($pro_size) && strlen($pro_size))==false)
+     {
         $errors['size']="サイズが入力されていません <br>";
-    }elseif(strlen($pro_size)>254){
+    }
+    elseif(strlen($pro_size)>254)
+    {
         $errors['size']="サイズが長いです、254文字以内にしてください<br>";
     }
 
-    if ((isset($pro_quantiry) && strlen($pro_quantiry))==false) {
+    //pro_quantiryの有無
+    if ((isset($pro_quantiry) && strlen($pro_quantiry))==false) 
+    {
         $errors['quantiry']="個数が入力されていません <br>";
-    }elseif(mb_strlen($pro_quantiry)>8){
+    }elseif(mb_strlen($pro_quantiry)>8)
+    {
         $errors['quantiry']="個数が多すぎます8個以下にしてください<br>";
     }
-  
-    if ((isset($pro_tax) && strlen($pro_tax))==false) {
+
+  //pro_taxの有無
+    if ((isset($pro_tax) && strlen($pro_tax))==false) 
+    {
         $errors['tax']="消費税が入力されていません <br>";
-    }elseif(mb_strlen($pro_tax)>5){
+    }elseif(mb_strlen($pro_tax)>5)
+    {
         $errors['tax']="消費税が長いです5桁以下でお願いします<br>";
     }
-   
-    if ((isset($pro_maker) && strlen($pro_maker))==false) {
+   //pro_makerの有無
+    if ((isset($pro_maker) && strlen($pro_maker))==false) 
+    {
         $errors['maker']="メーカーが入力されていません <br>";
     }
-  
-    if ((isset($pro_genle) && strlen($pro_genle))==false) {
+  //pro_genleの有無
+    if ((isset($pro_genle) && strlen($pro_genle))==false) 
+    {
         $errors['genle']="ジャンルが入力されていません <br>";
-    }elseif(mb_strlen($pro_genle)>255){
+    }
+    elseif(mb_strlen($pro_genle)>255)
+    {
         $errors['genle']="ジャンルが長すぎます。255文字以下でお願いします。<br>";
     }
+    //pro_priceの有無、正規表現チェック
     if(preg_match('/^[0-9]+$/',$pro_price)==0)
     {
     
         $errors['price']="価格をきちんと入力されていません <br>";
-    }elseif(mb_strlen($pro_price)>11){
+    }
+    elseif(mb_strlen($pro_price)>11)
+    {
         $errors['price']="価格の桁が多いです11桁以下にしてください<br>";
     }
     
 
-    if (isset($_FILES['pro_file_path_right'])&& $_FILES['pro_file_path_right']["name"]!=="") {
+    //右画像、ファイルの処理、上に書いている処理と同じ
+    if (isset($_FILES['pro_file_path_right'])&& $_FILES['pro_file_path_right']["name"]!=="") 
+    {
         $pro_file_path_right=$_FILES['pro_file_path_right'];
-        if ($pro_file_path_right['error']!==0) {
-            switch ($pro_file_path_right['error']) {
+        if ($pro_file_path_right['error']!==0) 
+        {
+            switch ($pro_file_path_right['error']) 
+            {
                 
                 case 3:
                     $errors['file_path_right']="メイン画像ファイルにエラーが発生しました一度戻ってやり直してください" ;
@@ -175,13 +226,20 @@ $pdo=null;
                     default:
                     $errors['file_path_right']="メイン画像ファイルにエラーが発生しました担当者に連絡ください" ;
             }
-        }elseif(strtolower($pro_file_path_right["name"])){
+        }
+        elseif(strtolower($pro_file_path_right["name"]))
+        {
             $path_info_right=pathinfo($pro_file_path_right['name'],PATHINFO_EXTENSION);
-                if (!($path_info_right=="jpg" || $path_info_right=="jpeg" || $path_info_right=="png")) {
+                if (!($path_info_right=="jpg" || $path_info_right=="jpeg" || $path_info_right=="png")) 
+                {
                     $errors['file_path_right']="画像の拡張子が違います";
-                }elseif($pro_file_path_right['size']>1000000) {
+                }
+                elseif($pro_file_path_right['size']>1000000) 
+                {
                 $errors['pro_file_path_right']="メイン商品画像が大きすぎます";
-            }else{
+            }
+            else
+            {
                 $save_file_name_right=date('YmdHis').$pro_file_path_right["name"];
                 move_uploaded_file($pro_file_path_right['tmp_name'], 'image/'.$save_file_name_right);
                 $new_pro_file_path_right= '<img src="image/'.$save_file_name_right.'">';
@@ -190,11 +248,15 @@ $pdo=null;
             }
         
     }
-    elseif($_FILES['pro_file_path_right']["name"]=="") {
+    elseif($_FILES['pro_file_path_right']["name"]=="") 
+    {
    
         $new_pro_file_path_right= '<img src="image/'.$pro_file_path_right_old.'">';
         
     }
+
+
+        //左画像、ファイルの処理、上に書いている処理と同じ
     if (isset($_FILES['pro_file_path_left'])&& $_FILES['pro_file_path_left']["name"]!=="") {
         $pro_file_path_left=$_FILES['pro_file_path_left'];
         if ($pro_file_path_left['error']!==0) {
@@ -234,7 +296,7 @@ $pdo=null;
         $new_pro_file_path_left= '<img src="image/'.$pro_file_path_left_old.'">';
         
     }
-
+    //後ろ画像、ファイルの処理、上に書いている処理と同じ
     if (isset($_FILES['pro_file_path_back'])&& $_FILES['pro_file_path_back']["name"]!=="") {
         $pro_file_path_back=$_FILES['pro_file_path_back'];
         if ($pro_file_path_back['error']!==0) {
@@ -269,7 +331,9 @@ $pdo=null;
             }
             }
         
-    }elseif($_FILES['pro_file_path_back']["name"]=="") {
+    }
+    elseif($_FILES['pro_file_path_back']["name"]=="") 
+    {
    
         $new_pro_file_path_back= '<img src="image/'.$pro_file_path_back_old.'">';
         
@@ -277,19 +341,27 @@ $pdo=null;
 
 
 
-
+//カテゴリーの有無
     if ($pro_category === "")
      {
         $errors['category']=$pro_category;
-    }elseif($pro_category === "1"){
+    }
+    elseif($pro_category === "1")
+    {
         $category="テーブル";
-    }elseif($pro_category === "2"){
+    }
+    elseif($pro_category === "2")
+    {
         
         $category="イス";
-    }elseif($pro_category === "3"){
+    }
+    elseif($pro_category === "3")
+    {
         $category="ソファー";
 
-    }else{
+    }
+    else
+    {
         $category="その他";
 
 
@@ -349,26 +421,40 @@ $pdo=null;
     <input type="hidden"name="maker" value="<?php echo $pro_maker ?>">
     <input type="hidden"name="genle" value="<?php echo $pro_genle ?>">
     <input type="hidden"name="category" value="<?php echo $pro_category ?>">
-    <input type="hidden"name="file_path" value="<?php if(isset($save_file_name)){
+<!--もしsave_file_nameがなくても$pro_file_path_oldを送っておく、 -->
+    <input type="hidden"name="file_path" value="<?php if(isset($save_file_name))
+    {
         echo $save_file_name;
-    }else{
+
+    }
+    else
+    {
         
     } ?>">
     <input type="hidden"name="file_path_old" value="<?php echo $pro_file_path_old ?>">
-    <input type="hidden"name="file_path_right" value="<?php if(isset($save_file_name_right)){
-    
+
+    <input type="hidden"name="file_path_right" value="<?php if(isset($save_file_name_right))
+    {
     echo $save_file_name_right;
-    }else{
+    }
+    else
+    {
         
     } ?>">
     <input type="hidden"name="file_path_right_old" value="<?php echo $pro_file_path_right_old ?>">
-    <input type="hidden"name="file_path_left" value="<?php if(isset($save_file_name_left)){
+
+    <input type="hidden"name="file_path_left" value="<?php if(isset($save_file_name_left))
+    {
         echo $save_file_name_left;
-    }else{
+    }
+    else
+    {
         
     } ?>">
     <input type="hidden"name="file_path_left_old" value="<?php echo $pro_file_path_left_old ?>">
-    <input type="hidden"name="file_path_back" value="<?php if(isset($save_file_name_back)){
+    
+    <input type="hidden"name="file_path_back" value="<?php if(isset($save_file_name_back))
+    {
        
 echo $save_file_name_back;
     }else{
