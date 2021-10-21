@@ -28,7 +28,7 @@ try {
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
-
+//shop_list,list_detail,sachを結合し、idで紐ずけ
     $sql ='SELECT * FROM shop_list JOIN list_detail ON shop_list.cood = list_detail.cood JOIN sach ON shop_list.cood = sach.cood WHERE id=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$pro_code;
