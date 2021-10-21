@@ -1,33 +1,51 @@
 <?php 
+
 require_once('../dbc/shop_dbc.php');
 
 session_start();
 session_regenerate_id(true);
+//クリックジャッキング防止
 header('X-FRAME-OPTIONS: SAMEORIGIN');
+//接続に必要な情報がdbconect()にはいている。
 $pdo=shop\dbconect();
+//直接アクセスのURLのtokenがあればsessionに代入
 if(isset($_GET["urltoken"])){
     $_SESSION['token']=$_GET["urltoken"];
 }
+//flag作り
 $flag=false;
-$errors = array();
+//空のエラー配列作成
+$errors=array();
 
 var_dump(isset($post['cood']));
-if (isset($_GET) || isset($post['cood'])) {
-    
-    if (isset($_POST['cood'])) {
+//$_GETがあるか、$post['cood']があるか、どちらかtrueで処理を始める
+if (isset($_GET) || isset($post['cood'])) 
+{
+    //$_POSTでコードがあれば
+    if (isset($_POST['cood'])) 
+    {
+        //エスケープ
         $post=shop\sanitize($_POST);
-        if($_SESSION['cood']===$post['cood']) {
+        //前ページで生成したランダム値とあっているか判定
+        if($_SESSION['cood']===$post['cood']) 
+        {
+            //あっていたら、urltokenが入っているsessionを$urltokenに代入
             $urltoken=$_SESSION['token'];
                 var_dump($urltoken);
-                if (isset($urltoken)) {
+                //urltokenの有無
+                if (isset($urltoken)) 
+                {
+                    //ここでフラグを立たせる
                     $flag=true;
+                    //youser_kaiにトークンで探しなおかつテーブルに入れた時間から24時間以内
                     $sql = "SELECT*FROM `youser_kai` WHERE `token`=:token AND flag =0 AND time > now() - interval 24 hour";
                     $stmt = $pdo->prepare($sql);
                     $stmt->bindValue(':token', $urltoken, PDO::PARAM_STR);
                     $stmt->execute();
                     $result=$stmt->fetch();
                     var_dump($result);
-                    if ($result) {
+                    if ($result) 
+                    {
                         $result['name'];
                         $result['sex'];
                         $result['basuday'];
@@ -39,6 +57,7 @@ if (isset($_GET) || isset($post['cood'])) {
                         $result['zyu'];
                         $result['flag'];
 
+                        //$resultがtrueならかくDBに入れていく
                         $stmt = $pdo -> prepare("INSERT INTO `youser_aka` (`name`,`pass`,`filename`,`sex`) 
 		VALUES (:name,:pass,:filename,:sex)");
                         $stmt->bindParam(':name', $result['name']);
@@ -59,22 +78,29 @@ if (isset($_GET) || isset($post['cood'])) {
                         $stmt->bindParam(':zyu', $result['zyu']);
                         $stmt->execute();
                         $stmt=null;
-                    };/*else{
-                $errors['urltoken_timeover'] = "このURLはご利用できません。有効期限が過ぎたかURLが間違えている可能性がございます。もう一度登録をやりなおして下さい。";
+                    }
+                    else
+                    {
+                        $errors['urltoken'] = "トークンがありません";
+                    }
                 $stmt = null;
-            }*/
-                }else{
-                    $errors['urltoken'] = "トークンがありません";
+            
                 }
              
-             }else{
+             }
+             else
+             {
                  $errors['cood'] ="コードが違います";
              }
-    }else{
+    }
+    else
+    {
         $errors['cood'] ="コードが未入力です";
         
     };
-}else{
+}
+else
+{
     echo "許可がないです";
     exit();
 }
@@ -87,11 +113,12 @@ $pdo=null;
 	<meta charset="UTF-8">
 	<title>登録確認</title>
 </head>
-<?php if($flag==true): ?> 
+<!-- flagがtrueでなおかつ$errors['urltoken'])がないなら　-->
+<?php if($flag==true&& !isset($errors['urltoken'])): ?> 
 <p>登録完了しました</p>
 <a href="../my/login.php">ログインページに</a>
 <?php
-
+//sessionを破棄
 $_SESSION=array();
 if(isset($_CCOKIE[session_name()])==true)
 {
@@ -99,6 +126,7 @@ if(isset($_CCOKIE[session_name()])==true)
 }
 session_destroy();
 ?>
+<!--$_GETか$errors['cood']どっちかがあるなら-->
 <?php elseif(isset($_GET) || isset($errors['cood'])):?>
 <h2>入力してください</h2>  
 <form method="post" action="signup.php" enctype="multipart/form-data">
@@ -107,6 +135,7 @@ session_destroy();
 <?php if(isset($errors['cood'])):?>
     <?php echo $errors['cood'] ?>
 <?php endif;?>
+<!-- urltokenがあるなら最初から-->
 <?php if (isset($errors['urltoken'])): ?>
 <?php echo $errors['urltoken']?>
 <a href="yuser\youser.php">もう一度登録してください</a>
