@@ -1,12 +1,14 @@
 <?php
 require_once('../dbc/sraff_dbc.php');
+//POST送信以外のアクセスを防ぐ
 severrq();
+//ログインしているか確認
 session(); 
 if(!isset($_SESSION['id'])):
     exit("直接アクセス禁止");
 endif;
 session_regenerate_id(true);
- 
+ //引数の値をエスケープする
     $post=sanitize($_POST);
     $pro_name=$post['name'];
     $pro_cood=$post['cood'];
@@ -15,35 +17,56 @@ session_regenerate_id(true);
     $pro_text=$post['text'];
     $pro_quantiry=$post['quantiry'];
     $pro_tax=$post['tax'];
-   
-    if (empty(!$_POST['file_path'])) {
+   //file_pathがなければ古いパスを入れる
+    if (empty(!$_POST['file_path'])) 
+    {
         $pro_file_path=$_POST['file_path'];
-    }else{
+    }
+    else
+    {
         $pro_file_path=$_POST['file_path_old'];
     }
     $pro_file_path_old=$_POST['file_path_old'];
+
     $pro_size=$_POST['size'];
-    if (empty(!$_POST['file_path_right'])) {
+
+    //右画像の有無
+    if (empty(!$_POST['file_path_right'])) 
+    {
         $pro_file_path_right=$_POST['file_path_right'];
-    }else{
+    }
+    else
+    {
         $pro_file_path_right=$_POST['file_path_right_old'];
     }
     $pro_file_path_right_old=$_POST['file_path_right_old'];
-    if (empty(!$_POST['file_path_left'])) {
+
+        //左画像の有無
+    if (empty(!$_POST['file_path_left'])) 
+    {
         $pro_file_path_left=$_POST['file_path_left'];
-    }else{
+    }
+    else
+    {
         $pro_file_path_left=$_POST['file_path_left_old'];
     }
     $pro_file_path_left_old=$_POST['file_path_left_old'];
-    if (empty(!$_POST['file_path_back'])) {
+
+    //左画像の有無
+    if (empty(!$_POST['file_path_back'])) 
+    {
         $pro_file_path_back=$_POST['file_path_back'];
-    }else{
+    }
+    else
+    {
         $pro_file_path_back=$_POST['file_path_back_old'];
     }
     $pro_file_path_back_old=$_POST['file_path_back_old'];
     
     $pro_maker=$post['maker'];
+
     $pro_genle=$post['genle'];
+
     $pro_category=$post['category'];
 
  
@@ -55,6 +78,7 @@ session_regenerate_id(true);
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
         ]);
 
+//shop_listの値を上書き
 $sql_list='UPDATE shop_list SET cood=?,name=?,file_path=?,text=?,quantiry=? WHERE cood=?';
 $stmt_list=$dbh->prepare($sql_list);
 $date1[]=$pro_cood;
@@ -63,13 +87,16 @@ $date1[]=$pro_file_path;
 $date1[]=$pro_text;
 $date1[]=$pro_quantiry;
 $date1[]=$pro_cood_old;
+
 $stmt_list->execute($date1);
- if($pro_file_path_old!=$pro_file_path){
+//古いパスが入っているならフォルダーの画像を消さない
+ if($pro_file_path_old!=$pro_file_path)
+ {
      unlink('image/'.$pro_file_path_old);
  }
 
 
-
+//list_detailの値を上書き
 $sql_detail='UPDATE list_detail SET cood=?,size=?,file_path_right=?,file_path_left=?,file_path_back=? WHERE cood=?';
 $stmt_detail=$dbh->prepare($sql_detail);
 $date2[]=$pro_cood;
@@ -80,17 +107,21 @@ $date2[]=$pro_file_path_back;
 $date2[]=$pro_cood_old;
 $stmt_detail->execute($date2);
 
-if($pro_file_path_right_old!=$pro_file_path_right){
+//古いパスが入っているならフォルダーの画像を消さない
+if($pro_file_path_right_old!=$pro_file_path_right)
+{
     unlink('image/'.$pro_file_path_right_old);
 }
-if($pro_file_path_left_old!=$pro_file_path_left_old){
+if($pro_file_path_left_old!=$pro_file_path_left_old)
+{
     unlink('image/'.$pro_file_path_left_old);
 }
-if($pro_file_path_back_old!=$pro_file_path_back_old){
+if($pro_file_path_back_old!=$pro_file_path_back_old)
+{
     unlink('image/'.$pro_file_path_back_old);
 }
 
-
+//sachの値を上書き
 $sql_sach='UPDATE sach set cood=?,maker=?,genre=?,category=?,price=?,tax=? WHERE cood=?';
 $stmt_sach=$dbh->prepare($sql_sach);
 $date3[]=$pro_cood;
@@ -104,7 +135,8 @@ $stmt_sach->execute($date3);
 
 $dbh=null;
 
-} catch (PDOException $e) {
+} catch (PDOException $e) 
+{
     echo "接続失敗".$e->getMessage();
     exit();
 }
@@ -126,6 +158,7 @@ $dbh=null;
 <p><?php echo $_SESSION["staff_name"]."さんログイン中です"?></p>
     <h1>修正しました</h1>
     <a href="pro_list.php">戻る</a>
+<!-- 処理が終わったらsessionの値をなくす-->
 <?php unset($_SESSION['imgname']) ?>
 <?php unset($_SESSION['imgname_right']) ?>
 <?php unset($_SESSION['imgname_left']) ?>
