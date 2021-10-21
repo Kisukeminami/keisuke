@@ -1,6 +1,9 @@
 <?php 
+
 require_once('../dbc/sraff_dbc.php');
+//ログインしているか確認命令
 session();
+//スタッフ権限確認
 anthority_sarede();
 
 ?>
@@ -14,6 +17,7 @@ anthority_sarede();
 </head>
 <body>
 <div id="wrapper">
+    
 <p><?php echo $_SESSION["staff_name"]."さんログイン中です"?></p>
     <h1>スタッフ追加</h1>
     <form method="post" action="staff_check.php">
@@ -41,6 +45,7 @@ anthority_sarede();
     </form>
 </div>
     <script>
+        //idの所得
             const name=document.getElementById('name');
             const btn=document.getElementById('btn');
             const pass=document.getElementById('pass');
@@ -53,21 +58,27 @@ anthority_sarede();
             const warning0=document.getElementById('warning0');
             const warning1=document.getElementById('warning1');
             const warning2=document.getElementById('warning2');
+
             console.log(anthority.cheked);
+
+            //OKボタンが押されたときに、スタッフ名がなければ、送れない
             btn.onclick=function(){
                 if(name.value.length==""){
                     warning.innerHTML="スタッフ名が入力されていません";
                     return false;
+                //スタッフ名が記入されていれば、何もしない    
                 }else{
                     warning.innerHTML=="";
 
                 }
+                //スタッフ名の問題で、<p>タグに文字を出す
                 if(15<=name.value.length){
                     warning.innerHTML="スタッフ名が長すぎます。15文字以内に下ください";
                     return false;
                 }else{
                     warning.innerHTML="";
                 }
+                //チェックボックスにチェックが入っていなければ、<p>タグに文字を出す
                 if((anthority.checked || anthority1.checked || anthority2.checked || anthority3.checked)==false){
                     warning0.innerHTML="役職が指定されていません";
                     return false;
@@ -86,6 +97,7 @@ anthority_sarede();
                 }else{
                     warning1.innerHTML=""
                 }
+                //パスワードが一番目と二番目で確認
                 if(pass.value!==pass2.value){
                     warning2.innerHTML="パスワードが違います。";
                     return false;
