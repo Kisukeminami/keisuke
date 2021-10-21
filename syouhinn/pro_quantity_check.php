@@ -1,6 +1,8 @@
 <?php 
 require_once('../dbc/sraff_dbc.php');
+//POST送信以外のアクセスを防ぐ
     severrq();
+    //ログインしているか確認命令
     session();
     if(!isset($_SESSION['id'])):
 		exit("直接アクセス禁止");
@@ -11,6 +13,7 @@ require_once('../dbc/sraff_dbc.php');
     $pro_name=$post['name'];
     $pro_id=$post['id'];
     $errors=array();
+    //個数の有無
     if ((isset($pro_quantiry) && strlen($pro_quantiry))==false) {
         $errors['quantiry']="個数が入力されていません <br>";
     }
@@ -26,7 +29,8 @@ require_once('../dbc/sraff_dbc.php');
 <body>
     <div id="wrapper">
 <p><?php echo $_SESSION["staff_name"]."さんログイン中です"?></p>
-      <?php 
+      <?php
+      //エラーがあれば、エラーメッセージをだし処理を止める 
       if(count($errors)):
 		foreach($errors as $value):?>
 
