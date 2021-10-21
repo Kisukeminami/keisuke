@@ -1,6 +1,7 @@
 <?php
+//クリックジャッキング防止
 header('X-FRAME-OPTIONS: SAMEORIGIN');
-
+//セッションの破棄
 session_start();
 $_SESSION=array();
 if(isset($_CCOKIE[session_name()])==true)
