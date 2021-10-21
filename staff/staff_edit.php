@@ -2,17 +2,20 @@
 
 $staff_code=$_GET['staff_code'];
 require_once('../dbc/sraff_dbc.php');
+//ログインしているか確認
 session();
+//スタッフの権限確認、2番強い権限、以下なら別ページに飛ばす
  anthority_second();
 
-try {
+try 
+{
   
 
 
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
-
+//staff_codeで紐付けてDBから取得
     $sql ='SELECT *FROM shop_staff WHERE staff_code=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$staff_code;
@@ -22,7 +25,9 @@ try {
     $dbh=null;
 
 
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
     echo "接続失敗".$e->getMessage();
     exit();
 
@@ -50,11 +55,13 @@ try {
      <p class="warning" id="warning"></p>  
      <br>
      <h3>役職</h3>
+     <!--空の$checkを用意し、所得したanthorityの値によってcheckedを入れる -->
      <?php $check1="" ?>
      <?php $check2="" ?>
      <?php $check3="" ?>
      <?php $check4="" ?>
-    <?php switch($staff['anthority']){
+    <?php switch($staff['anthority'])
+    {
         case "1":
         $check1="checked";
             break;
@@ -67,7 +74,8 @@ try {
         case "4";
         $check4="checked";
             break;        
-    }?>
+    }
+    ?>
       <input type="radio" name="anthority" <?php echo $check1 ?> value="1">部長
     　<input type="radio" name="anthority" <?php echo $check2 ?> value="2">課長
     　<input type="radio" name="anthority" <?php echo $check3 ?> value="3">社員
@@ -89,6 +97,7 @@ try {
     </form>
     </div>
     <script>
+        //idの所得、
             const name=document.getElementById('name');
             const btn=document.getElementById('btn');
             const pass=document.getElementById('pass');
@@ -96,28 +105,35 @@ try {
             const warning=document.getElementById('warning');
             const warning1=document.getElementById('warning1');
             const warning2=document.getElementById('warning2');
-            btn.onclick=function(){
-                if(name.value.length==""){
+            //ボタン命令　各idの空か長くないか、押されたら発火
+            btn.onclick=function()
+            {
+                if(name.value.length=="")
+                {
                     warning.innerHTML="スタッフ名が入力されていません";
                     return false;
                 }
-                if(15<=name.value.length){
+                if(15<=name.value.length)
+                {
                     warning.innerHTML="スタッフ名が長すぎます。15文字以内に下ください";
                     return false;
                 }
-                if(pass.value.length==""){
+                if(pass.value.length=="")
+                {
                     warning1.innerHTML="パスワードが入力されてないです。";
                     return false;
                 }
-                if(32<=pass.value.length){
+                if(32<=pass.value.length)
+                {
                     warning1.innerHTML="パスワードが長すぎます。32文字以内にしてください";
                     return false;
                 }
-                if(pass.value!==pass2.value){
+                if(pass.value!==pass2.value)
+                {
                     warning2.innerHTML="パスワードが違います。";
                     return false;
                 }
-            
+            //何もなければ、trueで送信できる
                 return true;
             }
     </script>
