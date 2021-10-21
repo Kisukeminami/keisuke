@@ -1,17 +1,19 @@
 <?php 
 
 require_once('../dbc/sraff_dbc.php');
-
+//ログインしているか確認
 session();
+//スタッフの権限確認、1番強い権限、以下なら別ページに飛ばす
 anthority_top();
 $staff_code=$_GET['staff_code'];
-try {
+try 
+{
 
 
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
-
+//staff_codeでDBからさがす
     $sql ='SELECT name FROM shop_staff WHERE staff_code=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$staff_code;
@@ -21,7 +23,8 @@ try {
     $dbh=null;
 
 
-    } catch (PDOException $e) {
+    } catch (PDOException $e)
+     {
     echo "接続失敗".$e->getMessage();
     exit();
 
@@ -38,6 +41,7 @@ try {
     <title>スタッフ削除</title>
 </head>
 <body>
+    <!-- 本当にいいのか確認-->
     <div id="wrapper">
         <p><?php echo $_SESSION["staff_name"]."さんログイン中です" ?></p>
     <h1>スタッフ削除</h1>
