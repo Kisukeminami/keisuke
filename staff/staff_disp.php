@@ -3,13 +3,14 @@ require_once('../dbc/sraff_dbc.php');
 session();
 anthority_sarede();
 $staff_code=$_GET['staff_code'];
-try {
+try
+ {
    
 
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
-
+//スタッフ名と権限を取得
     $sql ='SELECT name ,anthority FROM shop_staff WHERE staff_code=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$staff_code;
@@ -20,12 +21,15 @@ try {
     $dbh=null;
 
 
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
     echo "接続失敗".$e->getMessage();
     exit();
 
 }
-switch($staff_anthority){
+switch($staff_anthority)
+{
     case 1:
         $anthority="部長";
         break;
