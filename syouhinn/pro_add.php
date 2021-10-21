@@ -1,10 +1,12 @@
 <?php 
 require_once('../dbc/sraff_dbc.php');
-
+//ログインしているか確認
 session();
 
-session_regenerate_id(true);
+//idに日付を代入
 $_SESSION['id']=date('His');
+//もし$_SESSIONに画像の値があるなら、フォルダーから消す
+//フォルダーが溢れるのを防ぐため
 if(isset($_SESSION['imgname'])):
     unlink($_SESSION['imgname']);
     $_SESSION['imgname']=array();
@@ -100,7 +102,7 @@ endif;
         <input type="submit" id="btn" value="OK">
     </form>
     <script>
-    
+    //formから値を取得、
         const name = document.forms[0].elements['name'].value
         const cood = document.forms[0].elements['cood'].value
         const image = document.forms[0].elements['image'].value
