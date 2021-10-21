@@ -1,11 +1,13 @@
 <?php 
 
 require_once('../dbc/sraff_dbc.php');
+//ログインしているか確認
 session();
-
+//引数をエスケープ
 $post=sanitize($_POST);
 $staff_code = $post['code'];
 $staff_name = $post['name'];
+//パスワードをハッシュ化
 $staff_pass = password_hash($post['pass'],PASSWORD_DEFAULT);
 $staff_anthority = $post['anthority'];
 try {
@@ -13,7 +15,7 @@ try {
         $dbh= new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
             ]);
-    
+    //staff_codeの行の値を上書き
     $sql='UPDATE shop_staff SET name=?,password=?,anthority=? WHERE staff_code=? ';
     $stmt=$dbh->prepare($sql);
     $date[]=$staff_name;
@@ -25,7 +27,9 @@ try {
     $dbh=null;
     
     
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
         echo "接続失敗".$e->getMessage();
         exit();
     }
