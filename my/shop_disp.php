@@ -3,13 +3,16 @@ header('X-FRAME-OPTIONS: SAMEORIGIN');
 require_once('../dbc/sraff_dbc.php');
 session_start();
 session_regenerate_id(true);
+//ユーザーがログイン状態か
 if(isset($_SESSION['menber_login'])==false)
 {
  function yuser(){
      echo "ゲストユーザー";
      echo '<a href="menber_login.html">会員ログイン</a>';
  }
-}else{
+}
+else
+{
     function yuser()
     {
         echo "ようこそ".$_SESSION['menber_name']."様";
@@ -27,7 +30,7 @@ try {
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
-
+//shop_list,list_detail,sach,sachを結合し、idで紐ずけ
     $sql ='SELECT * FROM shop_list JOIN list_detail ON shop_list.cood = list_detail.cood JOIN sach ON shop_list.cood = sach.cood WHERE id=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$pro_code;
@@ -38,7 +41,9 @@ try {
     $dbh=null;
 
 
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
     echo "接続失敗".$e->getMessage();
     exit();
 
