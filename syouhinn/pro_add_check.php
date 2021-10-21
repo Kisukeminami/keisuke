@@ -1,25 +1,30 @@
     <?php
     
     require_once('../dbc/sraff_dbc.php');
-    severrq();
+    //POST送信以外のアクセスを防ぐ
+       severrq();
+    //ログインしているか確認命令
     session();
 
 	if(!isset($_SESSION['id'])):
 		exit("直接アクセス禁止");
 	endif;
-	try {
+	try 
+    {
         $pdo = new PDO($dsn,$user,$pass,
         array(PDO::ATTR_EMULATE_PREPARES => false));
     }
-    catch (PDOException $e) {
+    catch (PDOException $e)
+     {
         exit('データベース接続失敗。'.$e->getMessage());
     }
     
-
+//引数の値をエスケープする
     $post=sanitize($_POST);
     $pro_name=$post['name'];
     $pro_cood=$post['cood'];
     $pro_price=$post['price'];
+    //説明なので改行できるようにnl2br
     $pro_text=nl2br($post['text']);
     $pro_file_path=$_FILES['image'];
     $pro_quantiry=$post['quantiry'];
@@ -30,21 +35,33 @@
     $pro_file_path_back=$_FILES['file_path_back'];
     $pro_maker=$post['maker'];
     $pro_genle=$post['genle'];
+    //値がなければカテゴリーが選択されていませんを代入
     $pro_category=$post['category'] ?? "カテゴリーが選択されていません<br>";
+    //空のエラー配列を作成
     $errors=array();
     
-
-    if((isset($pro_name) && strlen($pro_name))==false){
+//pro_nameの有無
+    if((isset($pro_name) && strlen($pro_name))==false)
+    {
         $errors['name']="商品名が入力されていません <br>";
-        }elseif(mb_strlen($pro_name)>30){
+        }
+        elseif(mb_strlen($pro_name)>30)
+        {
         $errors['name']="商品名が長いです30文字以内してください<br>";  
         }
-        
-        if ((isset($pro_cood) && strlen($pro_cood))==false) {
+        //$pro_coodの有無
+        if ((isset($pro_cood) && strlen($pro_cood))==false) 
+        {
             $errors['cood']="商品コードが入力されていません <br>";
-        }elseif(strlen($pro_cood)>10){
+        }
+        elseif(strlen($pro_cood)>10)
+        {
             $errors['cood']="10文字以内にいてください <br>";
-        }else{
+        }
+        //pro_coodが大丈夫ならcoodでDB内にあるか確認、あればエラー
+        
+        else    
+        {
             $stmt=$pdo->prepare("SELECT `cood` FROM `shop_list`");
             $stmt->execute();
     
@@ -55,7 +72,7 @@
                 }
             }
         }
-   
+   //pro_textの有無
       if((isset($pro_text) && strlen($pro_text))==false){
         $errors['text']="説明が入力されていません <br>";
         
@@ -63,20 +80,24 @@
         $errors['text']="２５４文字以内にいてください <br>";
     }
 
-
+//$pro_sizeの有無
     if ((isset($pro_size) && strlen($pro_size))==false) {
         $errors['size']="サイズが入力されていません <br>";
     }elseif(strlen($pro_size)>254){
         $errors['size']="サイズが長いです、254文字以内にしてください<br>";
     }
 
-    
+    //画像のファイルの処理
         if($pro_file_path['name']=="")
         {
             $errors['file_path']="メイン画像ファイルが指定されてないです";
 
-        }elseif($pro_file_path["error"]!==0){
-            switch($pro_file_path["error"]){
+        }
+        //ファイルエラーがあれば
+        elseif($pro_file_path["error"]!==0)
+        {
+            switch($pro_file_path["error"])
+            {
                 case 3:
                 $errors['file_path']="メイン画像ファイルにエラーが発生しました一度戻ってやり直してください" ;
                 break;
@@ -93,70 +114,101 @@
                 $errors['file_path']="メイン画像ファイルにエラーが発生しました担当者に連絡ください" ;
 
                }
-            }elseif(strtolower($pro_file_path["name"])){
+            }
+                //strtolowerで、小文字に変換,拡張子な判定しやすく
+            elseif(strtolower($pro_file_path["name"]))
+            {
+            //pathinfoとPATHINFO_EXTENSIONで拡張子を取
                 $path_info =pathinfo($pro_file_path['name'],PATHINFO_EXTENSION);
+                //この中に当てはまるか
                 if(!($path_info=="jpg" || $path_info=="jpeg" || $path_info=="png")){
                     $errors['file_path']="画像の拡張子が違います";
-                
+                //サイズ確認
                 }elseif($pro_file_path['size']>1000000){
                 $errors['file_path']="画像が大きすぎます";
             }else{
+                //ファイル保存処理
                 $save_file_name=date('YmdHis').$pro_file_path["name"];
                 move_uploaded_file($pro_file_path['tmp_name'],'image/'.$save_file_name);
+                //$_SeSSionにも保存
                 $_SESSION['imgname']='image/'.$save_file_name;
                 echo "<br>";
          }  } 
             
 
-
-    if ((isset($pro_quantiry) && strlen($pro_quantiry))==false) {
+//個数の有無
+    if ((isset($pro_quantiry) && strlen($pro_quantiry))==false) 
+    {
         $errors['quantiry']="個数が入力されていません <br>";
-    }elseif(mb_strlen($pro_quantiry)>8){
+    }
+    elseif(mb_strlen($pro_quantiry)>8)
+    {
         $errors['quantiry']="個数が多すぎます8個以下にしてください<br>";
     }
 
-    if ((isset($pro_tax) && strlen($pro_tax))==false) {
+    //消費税の有無
+
+    if ((isset($pro_tax) && strlen($pro_tax))==false) 
+    {
         $errors['tax']="消費税が入力されていません <br>";
-    }elseif(mb_strlen($pro_tax)>5){
+    }
+    elseif(mb_strlen($pro_tax)>5)
+    {
         $errors['tax']="消費税が長いです5桁以下でお願いします<br>";
     }
 
-    
-    if ((isset($pro_maker) && strlen($pro_maker))==false) {
+    //メーカーの有無
+
+    if ((isset($pro_maker) && strlen($pro_maker))==false) 
+    {
         $errors['maker']="メーカーが入力されていません <br>";
     }
 
-    if ((isset($pro_genle) && strlen($pro_genle))==false) {
+    //ジャンルの有無
+    if ((isset($pro_genle) && strlen($pro_genle))==false) 
+    {
         $errors['genle']="ジャンルが入力されていません <br>";
     }elseif(mb_strlen($pro_genle)>255){
         $errors['genle']="ジャンルが長すぎます。255文字以下でお願いします。<br>";
     }
   
-    if (preg_match('/^[0-9]+$/', $pro_price)==0) {
+    //数字の正規表現
+    if (preg_match('/^[0-9]+$/', $pro_price)==0) 
+    {
         $errors['price']="価格がきちんと入力されていません <br>";
-    }elseif(mb_strlen($pro_price)>11){
+    }
+    //11文字以上なら
+    elseif(mb_strlen($pro_price)>11)
+    {
         $errors['price']="価格の桁が多いです11桁以下にしてください<br>";
     }
   
     
- 
-if($pro_category == "1"){
+ //カテゴリーのチェック
+if($pro_category == "1")
+{
         $new_category="テーブル";
-    }elseif($pro_category == "2"){
+    }
+    elseif($pro_category == "2")
+    {
         $new_category="イス";
 
-    }elseif($pro_category == "3"){
+    }
+    elseif($pro_category == "3")
+    {
      $new_category="ソファー";
 
-    }elseif($pro_category == "4"){
+    }elseif($pro_category == "4")
+    {
         $new_category="その他";
-    }else{
+    }
+    else
+    {
         $errors['category']=$pro_category;
         
     }   
     
-
-
+        //画像右の処理、方法は上のファイル処理と同じ
         if($pro_file_path_right['name']=="")
         {
             $errors['file_path_right']="メイン画像ファイルが指定されてないです";
@@ -179,28 +231,46 @@ if($pro_category == "1"){
                 $errors['file_path_right']="メイン画像ファイルにエラーが発生しました担当者に連絡ください" ;
 
                }
-            }elseif(strtolower($pro_file_path_right["name"])){
+            
+                //strtolowerで、小文字に変換,拡張子な判定しやすく
+            }
+            elseif(strtolower($pro_file_path_right["name"]))
+            {
+                //pathinfoとPATHINFO_EXTENSIONで拡張子を取得
                 $path_info_right =pathinfo($pro_file_path_right['name'],PATHINFO_EXTENSION);
-                if(!($path_info_right=="jpg" || $path_info_right=="jpeg" || $path_info_right=="png")){
+                    //この中に当てはまるか
+                if(!($path_info_right=="jpg" || $path_info_right=="jpeg" || $path_info_right=="png"))
+                {
                     $errors['file_path_right']="画像の拡張子が違います";
                 
-                }elseif($pro_file_path_right['size']>1000000){
+                }
+                //サイズ確認
+                elseif($pro_file_path_right['size']>1000000)
+                {
                 $errors['file_path']="画像が大きすぎます";
-            }else{
+            }
+            else
+            {
+                //ファイル保存プログラム
                 $save_file_name_right=date('YmdHis').$pro_file_path_right["name"];
                 move_uploaded_file($pro_file_path_right['tmp_name'],'image/'.$save_file_name_right);
+                //$_SESSIONにも保存
                 $_SESSION['imgname_right']='image/'.$save_file_name_right;
                 echo "<br>";
-         }  } 
+         
+            }  
+        } 
 
-    
+            //画像左の処理、方法は上のファイル処理と同じ
         if($pro_file_path_left['name']=="")
         {
             $errors['file_path_left']="メイン画像ファイルが指定されてないです";
 
         
-    }elseif($pro_file_path_left["error"]!==0){
-        switch($pro_file_path_left["error"]){
+    }elseif($pro_file_path_left["error"]!==0)
+    {
+        switch($pro_file_path_left["error"])
+        {
             case 3:
             $errors['file_path_left']="メイン画像ファイルにエラーが発生しました一度戻ってやり直してください" ;
             break;
@@ -217,27 +287,36 @@ if($pro_category == "1"){
             $errors['file_path_left']="メイン画像ファイルにエラーが発生しました担当者に連絡ください" ;
 
            }
-        }elseif(strtolower($pro_file_path_left["name"])){
+        }elseif(strtolower($pro_file_path_left["name"]))
+        {
             $path_info_left =pathinfo($pro_file_path_left['name'],PATHINFO_EXTENSION);
-            if(!($path_info_left=="jpg" || $path_info_left=="jpeg" || $path_info_left=="png")){
+            if(!($path_info_left=="jpg" || $path_info_left=="jpeg" || $path_info_left=="png"))
+            {
                 $errors['file_path_left']="画像の拡張子が違います";
             
-            }elseif($pro_file_path_left['size']>1000000){
+            }
+            elseif($pro_file_path_left['size']>1000000)
+            {
             $errors['file_path_left']="画像が大きすぎます";
-        }else{
+        }
+        else
+        {
             $save_file_name_left=date('YmdHis').$pro_file_path_left["name"];
             move_uploaded_file($pro_file_path_left['tmp_name'],'image/'.$save_file_name_left);
             $_SESSION['imgname_left']='image/'.$save_file_name_left;
             echo "<br>";
      }  } 
 
-
+        //画像後ろの処理、方法は上のファイル処理と同じ
         if($pro_file_path_back['name']=="")
         {
             $errors['file_path_back']="メイン画像ファイルが指定されてないです";
 
-        }elseif($pro_file_path_back["error"]!==0){
-            switch($pro_file_path_back["error"]){
+        }
+        elseif($pro_file_path_back["error"]!==0)
+        {
+            switch($pro_file_path_back["error"])
+            {
                 case 3:
                 $errors['file_path_back']="メイン画像ファイルにエラーが発生しました一度戻ってやり直してください" ;
                 break;
@@ -254,14 +333,20 @@ if($pro_category == "1"){
                 $errors['file_path_back']="メイン画像ファイルにエラーが発生しました担当者に連絡ください" ;
 
                }
-            }elseif(strtolower($pro_file_path_back["name"])){
+            }elseif(strtolower($pro_file_path_back["name"]))
+            {
                 $path_info_back =pathinfo($pro_file_path_back['name'],PATHINFO_EXTENSION);
-                if(!($path_info_back=="jpg" || $path_info_back=="jpeg" || $path_info_back=="png")){
+                if(!($path_info_back=="jpg" || $path_info_back=="jpeg" || $path_info_back=="png"))
+                {
                     $errors['file_path_back']="画像の拡張子が違います";
                 
-                }elseif($pro_file_path_back['size']>1000000){
+                }
+                elseif($pro_file_path_back['size']>1000000)
+                {
                 $errors['file_path_back']="画像が大きすぎます";
-            }else{
+            }
+            else
+            {
                 $save_file_name_back=date('YmdHis').$pro_file_path_back["name"];
                 move_uploaded_file($pro_file_path_back['tmp_name'],'image/'.$save_file_name_back);
                 $_SESSION['imgname_back']='image/'.$save_file_name_back;
@@ -283,6 +368,7 @@ if($pro_category == "1"){
 <div id="wrapper">
 <p><?php echo $_SESSION["staff_name"]."さんログイン中です"?></p>
 <?php
+//エラーがあれば処理
         if(count($errors)):
 		foreach($errors as $value):?>
 
