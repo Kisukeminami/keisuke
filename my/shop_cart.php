@@ -2,6 +2,7 @@
 header('X-FRAME-OPTIONS: SAMEORIGIN');
 session_start();
 session_regenerate_id(true);
+//ユーザーログインの有無判定
 if(isset($_SESSION['menber_login'])==false)
 {
  function yuser(){
@@ -21,8 +22,11 @@ $pro_id=$_GET['proid'];
 var_dump($_SESSION['cart']);
 echo "<br>";
 var_dump($_SESSION['count']);
-try {
-    if (isset($_SESSION['cart'])==true) {
+try 
+{
+    //カートの商品が入っていたら
+    if (isset($_SESSION['cart'])==true) 
+    {
         $cart=$_SESSION['cart'];
         $count=$_SESSION['count'];
     }
@@ -32,7 +36,9 @@ try {
         $_SESSION['count']=$count;
     //var_dump($count[]);
 
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
     echo "接続失敗".$e->getMessage();
     exit();
 
