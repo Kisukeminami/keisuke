@@ -5,7 +5,8 @@ require_once('../dbc/sraff_dbc.php');
 session();
 anthority_sarede();
 $pro_code=$_GET['pro_code'];
-try {
+try 
+{
 
 
 
@@ -25,7 +26,9 @@ try {
     
 
 
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
     echo "接続失敗".$e->getMessage();
     exit();
 
