@@ -1,3 +1,4 @@
+<!--クリックジャッキング防止-->
 <?php header('X-FRAME-OPTIONS: SAMEORIGIN');?>
 <!DOCTYPE html>
 <html lang="ja">
