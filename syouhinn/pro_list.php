@@ -12,7 +12,7 @@
         $dbh= new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
         ]);
-        
+        //shop_list,list_detail,sachをidで紐付けて結合
         $sql ='SELECT * FROM shop_list JOIN list_detail ON shop_list.cood = list_detail.cood JOIN sach ON shop_list.cood = sach.cood';
         $stmt=$dbh->prepare($sql);
         $stmt->execute();
