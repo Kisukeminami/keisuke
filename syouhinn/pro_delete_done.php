@@ -1,7 +1,7 @@
 <?php 
 
 require_once('../dbc/sraff_dbc.php');
-
+//ログインしているか確認
 session();
 $pro_code = $_POST['code'];
 $pro_file_path=$_POST['file_path'];
@@ -9,38 +9,46 @@ $pro_file_path_right=$_POST['file_path_right'];
 $pro_file_path_left=$_POST['file_path_left'];
 $pro_file_path_back=$_POST['file_path_back'];
 
-try {
+try 
+{
 
     
         
         $dbh= new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
             ]);
+    //shop_list,list_detail,sachをまとめて削除
     $sql='DELETE shop_list,list_detail,sach  FROM  shop_list INNER JOIN list_detail ON shop_list.cood = list_detail.cood INNER JOIN sach ON shop_list.cood = sach.cood WHERE id=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$pro_code;
     $stmt->execute($date);
            
-    
-    if($pro_file_path!=""){
+    //ファイル名があるならフォルダーから削除
+    if($pro_file_path!="")
+    {
         unlink('image/'.$pro_file_path);
     }
-    if($pro_file_path_right!=""){
+    if($pro_file_path_right!="")
+    {
         unlink('image/'.$pro_file_path_right);
     }
 
-    if($pro_file_path_left!=""){
+    if($pro_file_path_left!="")
+    {
         unlink('image/'.$pro_file_path_left);
     }
 
-    if($pro_file_path_back!=""){
+    if($pro_file_path_back!="")
+    {
         unlink('image/'.$pro_file_path_back);
     }
 
     $dbh=null;
     
     
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
         echo "接続失敗".$e->getMessage();
         exit();
     }
