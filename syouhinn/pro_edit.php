@@ -1,9 +1,12 @@
 <?php 
 
 require_once('../dbc/sraff_dbc.php');
-
+//ログインしているか確認命令
 session();
 session_regenerate_id(true);
+/*sessionに画像パスがあるならフォルダーからその画像を消す
+フォルダーが溢れないように
+*/
 $_SESSION['id']=date('His');
 anthority_sarede();
 if(isset($_SESSION['imgname']) && $_SESSION['imgname']!==""):
@@ -30,7 +33,7 @@ try {
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
     ]);
-
+//shop_list、list_detail,sach から同じidの行を取り出す
     $sql ='SELECT * FROM shop_list JOIN list_detail ON shop_list.cood = list_detail.cood JOIN sach ON shop_list.cood = sach.cood WHERE id=?';
     $stmt=$dbh->prepare($sql);
     $date[]=$pro_code;
@@ -39,7 +42,9 @@ try {
     $dbh=null;
 
     
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
     echo "接続失敗".$e->getMessage();
     exit();
     
@@ -88,7 +93,10 @@ try {
     <?php $check2="" ?>
     <?php $check3="" ?>
     <?php $check4="" ?>
-    <?php switch($all_aitem['category']){
+    <!-- $all_aitem['category']と同じ値にチェック -->
+    <?php 
+    switch($all_aitem['category'])
+    {
         case "1":
         $check1="checked";
             break;
@@ -101,7 +109,8 @@ try {
         case "4";
         $check4="checked";
             break;        
-    }?>
+    }
+    ?>
         <input type="radio" name="category" <?php echo $check1 ?> value="1">テーブル<br>
         <input type="radio" name="category" <?php echo $check2 ?> value="2">イス<br>
         <input type="radio" name="category" <?php echo $check3 ?> value="3">ソファー<br>
