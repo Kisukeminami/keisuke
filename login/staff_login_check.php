@@ -1,35 +1,39 @@
 <?php 
+//クリックジャッキング防止
 header('X-FRAME-OPTIONS: SAMEORIGIN');
 require_once('../dbc/sraff_dbc.php');
-try {
+try 
+{
   
 
     
     $dbh= new PDO($dsn, $user, $pass, [
     PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
         ]);
-}catch (PDOException $e) {
+}
+catch (PDOException $e) 
+{
             exit('データベース接続失敗。'.$e->getMessage());
-        }
+}
 
 
     $staff_code=$_POST['code'];
     $staff_pass=$_POST['pass'];
-
+//エスケープ処理
     $staff_code=htmlspecialchars($staff_code,ENT_QUOTES,'UTF-8');
     $staff_pass=htmlspecialchars($staff_pass,ENT_QUOTES,'UTF-8');
-
+//空のエラー配列
     $errors=array();
+   // 正規表現 全角半角数字のみ
     $coodmatch="/^[0-9０-９]{1,4}$/";
     if((isset($staff_code) && strlen($staff_code))==false):      
         $errors['cood']="社員コードが入力されていません";
         $staff_code=null;
-    
     elseif(!preg_match($coodmatch,$staff_code)):
 		$errors["cood"]="社員コードを正しく入力してください";
         $staff_code=null;
 	endif;
-
+//正規表現a-zA-Z0-9の中だけ
     $passmatch="/^[a-zA-Z0-9]+$/";
     if((isset($staff_pass) && strlen($staff_pass))==false):      
         $errors['pass']="パスワードが入力されていません";
@@ -52,6 +56,7 @@ try {
     <body>
         <div id="wrapper">
     <?php
+    //エラー配列にエラーが入っていればメッセージを出して処理を終了する
     if(count($errors)):
             foreach($errors as $value):?>
     
@@ -62,6 +67,7 @@ try {
             <input type="button" onclick="history.back()" value="戻る">
     <?php
         else:
+//shop_staff テーブルの中からstaff_codeで取得
 $sql='SELECT *FROM shop_staff WHERE staff_code=?';
 $stmt=$dbh->prepare($sql);
 $date[]=$staff_code;
@@ -72,6 +78,7 @@ $dbh = null;
 $staff=$stmt->fetch(PDO::FETCH_ASSOC);
 var_dump($staff['password']);
 var_dump($staff_pass);
+//$staffがなければfalseなのでスタッフコードが間違っている
 if($staff==false):
 ?>
     <h2>スタッフコードが間違っています</h2>
@@ -80,6 +87,7 @@ if($staff==false):
     
 <?php
 exit();
+//$stafがtrueならパスワードを解読
 elseif(password_verify($staff_pass,$staff['password'])==false):
 ?>
     <h2>パスワードが間違っています</h2>
@@ -87,7 +95,7 @@ elseif(password_verify($staff_pass,$staff['password'])==false):
 <?php
    exit();
 endif;
-
+//パスワードを解読がtrueならsessionに入れいく
 {
     session_start();
     $_SESSION['login']=1;
