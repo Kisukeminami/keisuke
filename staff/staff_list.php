@@ -1,25 +1,30 @@
 
     <?php 
     require_once('../dbc/sraff_dbc.php');
-
+//ログインしているか確認
     session();
+//スタッフの権限確認、3番強い権限、以下なら別ページに飛ばす
     anthority_forse();
-    try {
+    try 
+    {
         
 
     
         $dbh= new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,
         ]);
-    
+    //shop_staffから取得
         $sql ='SELECT staff_code, name FROM shop_staff ';
         $stmt=$dbh->prepare($sql);
         $stmt->execute();
         $dbh=null;
     
-
+        
+        //$all_staffsに全権入れる,fetchAllで
         $all_staffs=$stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
+    } 
+    catch (PDOException $e) 
+    {
         echo "接続失敗".$e->getMessage();
         exit();
     
@@ -48,7 +53,8 @@
     </header>
     <div id=mainlist>
         <h1>スタッフ一覧</h1>
-        <form method="post" action="staff_branch.php">          
+        <form method="post" action="staff_branch.php">
+            <!-- $all_staffsをforeachで回していく -->
         <?php foreach($all_staffs as $all_staff):?>
         <input type="radio" name="staff_code" value= "<?php echo  $all_staff['staff_code']?>"><?php echo $all_staff['name'] ?>
         <br>
